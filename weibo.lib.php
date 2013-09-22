@@ -66,13 +66,30 @@ function publish_sina_weibo($postID)
 	if(!$client) return false;
 
 	$img_src = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), "Full");
-	$weibo_content = $post->post_title;
-	$imagepath = get_image_path_by_url($img_src[0]);
+	if(has_excerpt($postID)){	//文章摘要
+		$excerpt = $post->post_excerpt;
+	}else{	//自动生成摘要
+		$excerpt = strip_tags($post->post_content);
+		$len = mb_strlen($excerpt);
+		if($len>90){
+			$excerpt = mb_substr($excerpt,0,80);
+			$excerpt.='...';
+		}		
+	}
+	$weibo_content = $post->post_title.":".$excerpt;
+	$url = get_permalink($postID);
+	$weibo_content.=$url;	
+	$imagepath='';
+	if($img_src){
+		$imagepath = get_image_path_by_url($img_src[0]);
+	}	
+
 	if($imagepath){
 		$weibo_data = $client->upload($weibo_content,$imagepath);
 	}else{
 		$weibo_data = $client->update($weibo_content);
 	}
+	
 	$weibo_data = (array)$weibo_data;
 	
 	$data['postId']=$postID;
@@ -140,12 +157,18 @@ function create_dashboard_weibo_widget()
 	echo $content;
 }
 
-
+/**
+ * 添加微博设置页面
+ */
 function add_weibo_page_menu()
 {
 	add_options_page('新浪微博', '新浪微博', 'manage_options', 'set_weibo_config', 'show_weibo_option_page' );
 }
 
+/**
+ * 微博展示显示页面
+ * @return void
+ */
 function show_weibo_option_page()
 {
 	global $wb_akey,$wb_skey,$wb_callback_url;
