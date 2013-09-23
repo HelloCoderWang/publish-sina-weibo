@@ -3,7 +3,7 @@
  Plugin Name: Publish Sina Weibo
  Plugin URI:
  Author: King
- Description: 自动发布文章内容到新浪微博
+ Description: 目前支持上传文章的特色图片和根据标题和摘要生成的微博内容，附带一个当前网站的网址。如何在没有填写摘要时，自动将文章前80个字符认为是文章摘要.
  Version: 1.0
  */
 require 'weibo.lib.php';
